@@ -1,0 +1,32 @@
+version: '2'
+services:
+    mssql:
+        container_name: ${PREFIX_CONTAINER_NAME}_mssql
+        build: './mssql'
+        # image: 'iodock_mssql'
+        environment:
+            ACCEPT_EULA: Y
+            SA_PASSWORD: 'v4boyomN!@#123'
+            MSSQL_DB: logbook_dev
+            MSSQL_USER: iotech
+            MSSQL_PASSWORD: dev@i0tech
+        ports:
+            - "1433:1433"
+    php-fpm:
+        container_name: ${PREFIX_CONTAINER_NAME}_php-fpm
+        build:
+            context: ./php-fpm
+        volumes:
+            - '${WORK_DIR}:/var/www/html'
+        expose:
+            - '9000'
+    nginx:
+        container_name: ${PREFIX_CONTAINER_NAME}_nginx
+        image: 'nginx:alpine'
+        volumes:
+            - './nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro'
+            - './nginx/conf.d:/etc/nginx/conf.d:ro'
+        volumes_from: 
+            - php-fpm
+        ports:
+            - '${NGINX_HTTP_PORT}:80'
